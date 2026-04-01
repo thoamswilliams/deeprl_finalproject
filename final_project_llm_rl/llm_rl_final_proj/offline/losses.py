@@ -80,11 +80,15 @@ def compute_offline_preference_loss(
         if reference_scores is None:
             raise ValueError("DPO requires reference scores.")
         ref_margin_sum = reference_scores.chosen_logp_sum - reference_scores.rejected_logp_sum
+        
         # TODO(student): compute the reference-corrected DPO logits.
         # Hint: compare the policy margin against the frozen reference margin.
-        logits = torch.empty_like(policy_margin_sum)
+        logits = policy_margin_sum - ref_margin_sum
+        
         # TODO(student): replace this with the DPO logistic loss.
-        losses = torch.empty_like(policy_margin_sum)
+        losses = -F.logsigmoid(beta * logits)
+
+
         metrics.update(
             {
                 "preference/reference_margin_sum_mean": float(ref_margin_sum.detach().mean().item()),
@@ -96,11 +100,15 @@ def compute_offline_preference_loss(
         if reference_scores is None:
             raise ValueError("IPO requires reference scores.")
         ref_margin_sum = reference_scores.chosen_logp_sum - reference_scores.rejected_logp_sum
-        # TODO(student): compute the reference-corrected IPO logits.
-        logits = torch.empty_like(policy_margin_sum)
         target_gap = 1.0 / (2.0 * beta)
+        
+        # TODO(student): compute the reference-corrected IPO logits.
+        logits = policy_margin_sum - ref_margin_sum
+
         # TODO(student): implement the squared IPO target-gap objective.
-        losses = torch.empty_like(policy_margin_sum)
+        losses = (logits - target_gap) ** 2
+
+        
         metrics.update(
             {
                 "preference/reference_margin_sum_mean": float(ref_margin_sum.detach().mean().item()),
