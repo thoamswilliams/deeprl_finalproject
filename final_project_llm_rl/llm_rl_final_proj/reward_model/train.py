@@ -155,14 +155,15 @@ def save_checkpoint(model: torch.nn.Module, cfg: RewardModelConfig, step: int) -
 
 
 def _compute_pair_metrics(chosen_scores: torch.Tensor, rejected_scores: torch.Tensor) -> Dict[str, float]:
-    # TODO(student): implement the Bradley-Terry reward-model objective.
+    # DONE(student): implement the Bradley-Terry reward-model objective.
     # `chosen_scores` and `rejected_scores` are scalar rewards for the preferred and dispreferred
     # responses in the batch. Compute:
     #   1. the per-example margin,
     #   2. the mean negative log-sigmoid loss,
     #   3. summary metrics such as pair accuracy and mean margin.
-    margins = torch.empty_like(chosen_scores)
-    loss = torch.empty((), device=chosen_scores.device, dtype=chosen_scores.dtype)
+    margins = (chosen_scores - rejected_scores)
+    loss = - torch.nn.functional.logsigmoid(margins).mean()
+    # ENDDONE
     return {
         "loss_tensor": loss,
         "reward_model/loss": float(loss.detach().item()),

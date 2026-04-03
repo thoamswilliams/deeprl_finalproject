@@ -34,7 +34,7 @@ class WandBLogger:
                 self.enabled = False
                 return
             self._wandb = wandb
-            self._run = wandb.init(project=project, name=run_name, config=config)
+            self._run = wandb.init(project=project, name=run_name, config=config, entity="etl-cs185-final-project")
 
     def log(self, metrics: Dict[str, Any], step: Optional[int] = None) -> None:
         if self._metrics_fh is not None:
