@@ -108,7 +108,7 @@ def compute_offline_preference_loss(
         # TODO(student): implement the squared IPO target-gap objective.
         losses = (logits - target_gap) ** 2
 
-        
+
         metrics.update(
             {
                 "preference/reference_margin_sum_mean": float(ref_margin_sum.detach().mean().item()),
@@ -119,12 +119,18 @@ def compute_offline_preference_loss(
     elif algo == "aot":
         if reference_scores is None:
             raise ValueError("AOT requires reference scores.")
+        
         # TODO(student): convert policy/reference scores into chosen and rejected rewards,
         # sort both reward vectors, and apply a DPO-style logistic loss to the quantile gaps.
-        chosen_rewards = torch.empty_like(policy_scores.chosen_logp_sum)
-        rejected_rewards = torch.empty_like(policy_scores.rejected_logp_sum)
-        quantile_gap = torch.empty_like(chosen_rewards)
-        losses = torch.empty_like(chosen_rewards)
+        chosen_rewards = policy_scores.chosen_logp_sum - reference_scores.chosen_logp_sum
+        chosen_rewards_sorted, _ = torch.sort(chosen_rewards)
+
+        rejected_rewards = policy_scores.rejected_logp_sum - reference_scores.rejected_logp_sum
+        rejected_rewards_sorted, _ = torch.sort(rejected_rewards)
+
+        quantile_gap = chosen_rewards_sorted - rejected_rewards_sorted
+        losses = -F.logsigmoid(beta * quantile_gap)
+
         metrics.update(
             {
                 "preference/aot_chosen_reward_mean": float(chosen_rewards.detach().mean().item()),
