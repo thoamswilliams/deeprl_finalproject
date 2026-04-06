@@ -37,14 +37,15 @@ def build_completion_mask(
     pad_token_id: int,
 ) -> torch.Tensor:
     """Mask over per-token positions [B, L-1], selecting completion tokens only."""
-    del pad_token_id
-    # DONE(student): build a float mask of shape [B, L-1] that selects only completion tokens.
-    # Be careful about the one-token shift between logits[:, :-1] and input_ids[:, 1:].
-    mask = attention_mask.clone()[:,1:]
-    mask[:, :prompt_input_len-1] = 0
-    mask = mask.to(input_ids.device).float()
+    B, L = input_ids.shape
+    device = input_ids.device
 
-    return mask
+    token_positions = torch.arange(1, L, device=device)
+    completion_toks = token_positions >= prompt_input_len
+    is_not_padding = attention_mask[:, 1:].to(torch.bool)
+
+    mask = completion_toks.unsqueeze(0) & is_not_padding
+    return mask.to(dtype=torch.float32)
     # END DONE
 
 

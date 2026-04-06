@@ -43,11 +43,12 @@ def iter_minibatches(
     # DONE(student): iterate over the rollout in minibatches, optionally shuffling the row indices,
     # and yield RolloutBatch objects containing the selected subset.
     N = batch.input_ids.shape[0]
+    input_device = batch.input_ids.device
 
     if shuffle:
-        iter_order = torch.randperm(N, generator=generator)
+        iter_order = torch.randperm(N, generator=generator, device = input_device)
     else:
-        iter_order = torch.arange(N)
+        iter_order = torch.arange(N, device = input_device)
 
     for i in range(0, N, minibatch_size):
         batch_indices = iter_order[i : i + minibatch_size]

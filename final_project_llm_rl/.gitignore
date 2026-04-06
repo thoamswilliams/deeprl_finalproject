@@ -1,2 +1,8 @@
 cs285_llm_rl_final_project.egg-info/*
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+wandb/
+*.egg-info/
 wildchat_min4_judged_5k_reward_model_v1/*

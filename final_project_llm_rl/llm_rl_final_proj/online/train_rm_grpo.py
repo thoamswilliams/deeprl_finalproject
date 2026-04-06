@@ -256,9 +256,15 @@ def _build_online_algo(cfg: OnlineRMGRPOConfig):
 
 
 def _algo_divides_advantages_by_std(algo: str) -> bool:
-    # TODO(student): return True for the algorithms that use group-standard-deviation
+    # Done(student): return True for the algorithms that use group-standard-deviation
     # normalization and False for the algorithms that intentionally avoid it.
-    raise NotImplementedError("Implement _algo_divides_advantages_by_std in the student starter.")
+    if algo == "grpo":
+        return True
+    if algo == "dr_grpo":
+        return False
+    if algo == "gspo":
+        return True
+    raise ValueError(f"Unsupported --algo {algo}")
 
 
 def _normalize_completion_for_reward_scoring(text: str) -> str:
