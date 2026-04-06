@@ -1,1 +1,7 @@
 cs285_llm_rl_final_project.egg-info/*
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+wandb/
+*.egg-info/
