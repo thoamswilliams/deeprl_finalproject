@@ -80,7 +80,7 @@ class DrGRPO(RLAlgorithm):
                 per_token_obj = torch.minimum(unclipped, clipped) * mask
 
                 # step 6: no per-sequence length norm
-                seq_obj = torch.sum(per_token_obj, dim = 1)
+                seq_obj = torch.sum(per_token_obj, dim =1)
 
                 # step 7
                 pg_loss = -seq_obj.mean()

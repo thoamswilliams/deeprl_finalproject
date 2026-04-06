@@ -69,14 +69,16 @@ class GSPO(RLAlgorithm):
                 new_logp = compute_per_token_logprobs(model, mb.input_ids, mb.attention_mask)
 
                 log_ratio = torch.clamp(new_logp - mb.old_logprobs, min=-20, max=20)
+
+                # compute clipped geometric mean
+                lengths = mask.sum(dim=1).clamp_min(1.0)
                 log_ratio = log_ratio * mask
-                
+
                 # aggregate before clipping
-                agg_log_ratio = log_ratio.sum(dim = 1)
+                agg_log_ratio = (log_ratio).sum(dim=1) / lengths
 
                 # prevent numeric issues
                 agg_log_ratio = torch.clamp(agg_log_ratio, min=-20, max=20)
-
                 ratio = torch.exp(agg_log_ratio)
 
                 #step 5: build advantage (no need to unsqueeze adv to per_token)
