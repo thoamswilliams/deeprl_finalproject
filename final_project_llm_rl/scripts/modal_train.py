@@ -206,6 +206,12 @@ def _reward_model_train_entrypoint(*args: str) -> None:
     cmd = ["python", "-u", "-m", "llm_rl_final_proj.reward_model.train", *normalized_args]
     _run_subprocess_with_periodic_volume_commits(cmd)
 
+def _reward_model_finetune_entrypoint(*args: str) -> None:
+    normalized_args = _normalize_args(args, default_output_dir="runs/reward_model_finetune_default")
+    _assert_wandb_credentials_available_if_needed(normalized_args)
+    cmd = ["python", "-u", "-m", "llm_rl_final_proj.reward_model.fine_tune", *normalized_args]
+    _run_subprocess_with_periodic_volume_commits(cmd)
+
 
 def _rm_grpo_train_entrypoint(*args: str) -> None:
     normalized_args = _normalize_args(args, default_output_dir="runs/rm_grpo_default")
@@ -281,6 +287,19 @@ def train_remote(*args: str) -> None:
 )
 def reward_model_train_remote(*args: str) -> None:
     _reward_model_train_entrypoint(*args)
+
+@app.function(
+    volumes={VOLUME_PATH: volume},
+    timeout=DEFAULT_TIMEOUT_SECONDS,
+    env=gpu_env,
+    image=image,
+    secrets=function_secrets,
+    gpu="H100",
+    cpu=DEFAULT_CPU,
+    memory=DEFAULT_MEMORY_MB,
+)
+def reward_model_finetune_remote(*args: str) -> None:
+    _reward_model_finetune_entrypoint(*args)
 
 
 @app.function(
