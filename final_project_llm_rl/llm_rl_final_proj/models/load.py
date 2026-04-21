@@ -299,6 +299,87 @@ def load_reward_model_and_tokenizer(
     model.eval()
     return LoadedInferenceModel(model=model, tokenizer=tokenizer)
 
+def load_trainable_lora_reward_model_and_tokenizer(
+    model_name: str,
+    *,
+    device: torch.device,
+    dtype: torch.dtype = torch.bfloat16,
+    grad_checkpointing: bool = True,
+    lora_r: int = 16,
+    lora_alpha: int = 32,
+    lora_dropout: float = 0.05,
+    lora_target_modules: Sequence[str] = ("q_proj", "k_proj", "v_proj", "o_proj"),
+    lora_bias: str = "none",
+    adapter_path: str = None
+) -> LoadedRewardModel:
+    """
+    Loads a trainable lora version of the reward model.
+
+    If no adapter_path is provided this SHOULD be identical to load_lora_reward_model_and_tokenizer
+    This is a standalone function to not create potential issues with scafolding.
+    """
+    tokenizer = _prepare_tokenizer(model_name)
+    base = AutoModelForSequenceClassification.from_pretrained(
+        model_name,
+        num_labels=1,
+        **_build_model_kwargs(dtype=dtype),
+    )
+    if getattr(base.config, "pad_token_id", None) is None:
+        base.config.pad_token_id = tokenizer.pad_token_id
+    if grad_checkpointing:
+        if hasattr(base, "gradient_checkpointing_enable"):
+            base.gradient_checkpointing_enable()
+        _ensure_input_require_grads(base)
+        base.config.use_cache = False
+
+    normalized_targets = _normalize_targets(lora_target_modules)
+    matched_targets = _filter_existing_target_suffixes(base, normalized_targets)
+    modules_to_save = _detect_reward_head_modules_to_save(base)
+
+    if adapter_path is not None:
+        model = PeftModel.from_pretrained(base, adapter_path, is_trainable=True)
+    else:
+        lora_cfg = LoraConfig(
+        task_type=TaskType.SEQ_CLS,
+        r=int(lora_r),
+        lora_alpha=int(lora_alpha),
+        lora_dropout=float(lora_dropout),
+        target_modules=matched_targets,
+        modules_to_save=modules_to_save or None,
+        bias=lora_bias,
+        )
+        model = get_peft_model(base, lora_cfg)
+
+    model.to(device)
+
+    if grad_checkpointing:
+        if hasattr(model, "gradient_checkpointing_enable"):
+            model.gradient_checkpointing_enable()
+        _ensure_input_require_grads(model)
+        if hasattr(model, "base_model"):
+            _ensure_input_require_grads(model.base_model)
+        model.config.use_cache = False
+    
+    modules_to_save_set = set(modules_to_save)
+    for name, p in model.named_parameters():
+        is_lora = "lora_" in name
+        is_saved_head = any(name.startswith(f"{module_name}.") or f".{module_name}." in name for module_name in modules_to_save_set)
+        should_train = is_lora or is_saved_head
+        p.requires_grad_(should_train)
+        if is_lora and p.dtype != torch.float32:
+            p.data = p.data.float()
+
+    trainable_params, total_params = _count_params(model)
+
+    return LoadedRewardModel(
+        model=model,
+        tokenizer=tokenizer,
+        trainable_params=trainable_params,
+        total_params=total_params,
+        lora_target_modules=matched_targets,
+        modules_to_save=modules_to_save,
+    )
+
 def resolve_adapter_path(path: str) -> str:
     p = Path(path)
     if not p.exists():
