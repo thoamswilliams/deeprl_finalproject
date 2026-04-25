@@ -429,7 +429,7 @@ def main() -> None:
         rm_model.train()
 
         # Pessimistic loss component
-        pess_loss = torch.sum(rejection_sampled_policy_rewards - ref_rewards)
+        pess_loss = torch.mean(rejection_sampled_policy_rewards - ref_rewards)
 
         # Get a batch form that our reward model can understand
         rm_batch = collator(batch).to(device)
