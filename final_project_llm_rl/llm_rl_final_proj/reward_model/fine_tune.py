@@ -60,7 +60,6 @@ class FineTuneConfig:
     eval_interval: int = 25
     save_interval: int = 50
 
-    # TODO: ADD TO CMD LINE ARGS
     num_samples: int = 32
     pessimistic_coef: float = 10.0
     lr: float = 3e-5
@@ -69,8 +68,6 @@ class FineTuneConfig:
     wandb_name: str = "reward_model_finetuned_PET_2"
     wandb_enabled: bool = True
 
-
-    # TODO: ADD TO CMD LINE ARGS
     # sampler config
     s_min_new_tokens: int = 8
     s_max_new_tokens: int = 256
@@ -81,7 +78,6 @@ class FineTuneConfig:
     s_repetition_penalty: float = 1.0
     s_batch_size: int = 4
 
-    # TODO: ADD TO CMD LINE ARGS
     # policy config
     p_model_name: str = "Qwen/Qwen2.5-1.5B-Instruct"
     p_lora_r: int = 32
@@ -105,13 +101,18 @@ def parse_args() -> FineTuneConfig:
     ap.add_argument("--per_device_train_batch_size", type=int, default=FineTuneConfig.per_device_train_batch_size)
     ap.add_argument("--per_device_eval_batch_size", type=int, default=FineTuneConfig.per_device_eval_batch_size)
     ap.add_argument("--grad_accum_steps", type=int, default=FineTuneConfig.grad_accum_steps)
-    ap.add_argument("--lr", type=float, default=FineTuneConfig.lr)
 
     ap.add_argument("--max_prompt_tokens", type=int, default=FineTuneConfig.max_prompt_tokens)
     ap.add_argument("--max_response_tokens", type=int, default=FineTuneConfig.max_response_tokens)
 
+    ap.add_argument("--max_grad_norm", type=float, default=FineTuneConfig.max_grad_norm)
+
     ap.add_argument("--eval_interval", type=int, default=FineTuneConfig.eval_interval)
     ap.add_argument("--save_interval", type=int, default=FineTuneConfig.save_interval)
+
+    ap.add_argument("--num_samples", type=int, default=FineTuneConfig.num_samples)
+    ap.add_argument("--pessimistic_coef", type=float, default=FineTuneConfig.pessimistic_coef)
+    ap.add_argument("--lr", type=float, default=FineTuneConfig.lr)
 
     ap.add_argument("--wandb_project", type=str, default=FineTuneConfig.wandb_project)
     ap.add_argument("--wandb_name", type=str, default=FineTuneConfig.wandb_name)
@@ -120,6 +121,30 @@ def parse_args() -> FineTuneConfig:
         action=argparse.BooleanOptionalAction,
         default=FineTuneConfig.wandb_enabled,
     )
+
+    # sampler config
+    ap.add_argument("--s_min_new_tokens", type=int, default=FineTuneConfig.s_min_new_tokens)
+    ap.add_argument("--s_max_new_tokens", type=int, default=FineTuneConfig.s_max_new_tokens)
+    ap.add_argument("--s_temperature", type=float, default=FineTuneConfig.s_temperature)
+    ap.add_argument("--s_reward_batch_size", type=int, default=FineTuneConfig.s_reward_batch_size)
+    ap.add_argument("--s_top_p", type=float, default=FineTuneConfig.s_top_p)
+    ap.add_argument("--s_top_k", type=int, default=FineTuneConfig.s_top_k)
+    ap.add_argument("--s_repetition_penalty", type=float, default=FineTuneConfig.s_repetition_penalty)
+    ap.add_argument("--s_batch_size", type=int, default=FineTuneConfig.s_batch_size)
+
+    # policy config
+    ap.add_argument("--p_model_name", type=str, default=FineTuneConfig.p_model_name)
+    ap.add_argument("--p_lora_r", type=int, default=FineTuneConfig.p_lora_r)
+    ap.add_argument("--p_lora_alpha", type=int, default=FineTuneConfig.p_lora_alpha)
+    ap.add_argument("--p_lora_dropout", type=float, default=FineTuneConfig.p_lora_dropout)
+    ap.add_argument("--p_lora_target_modules", type=str, default=FineTuneConfig.p_lora_target_modules)
+    ap.add_argument("--p_lora_bias", type=str, default=FineTuneConfig.p_lora_bias)
+    ap.add_argument(
+        "--p_grad_checkpointing",
+        action=argparse.BooleanOptionalAction,
+        default=FineTuneConfig.p_grad_checkpointing,
+    )
+
     args = ap.parse_args()
     return FineTuneConfig(**vars(args))
 
