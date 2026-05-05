@@ -436,3 +436,133 @@ uv run modal run -d scripts/modal_train.py::rm_grpo_train_remote -- \
 --wandb_project llm-rl-final-project \
 --wandb_name grpo_PET_RM3_v2_long_seed44
 ```
+### Generating Completions to Score Model Preformance
+These are bash loops to run the modal scripts to build policy submissions for all above runs
+```bash
+uv run modal run -d scripts/modal_train.py::build_policy_submission_remote -- \
+  --model_name Qwen/Qwen2.5-1.5B-Instruct \
+  --adapter_path "/vol/runs/PET/grpo_PET_RM1_v2_long_seed42/checkpoints/step_000100/adapter" \
+  --prompts_jsonl /root/project/public_eval/public_test_gen_prompts_128.jsonl \
+  --output_jsonl "/vol/judge/PET/GRPO/grpo_PET_RM1_v2_long_seed42.jsonl" \
+  --max_prompt_tokens 700 \
+  --max_new_tokens 256 \
+  --temperature 0.0 \
+  --top_p 1.0
+
+uv run modal run -d scripts/modal_train.py::build_policy_submission_remote -- \
+  --model_name Qwen/Qwen2.5-1.5B-Instruct \
+  --adapter_path "/vol/runs/PET/grpo_PET_RM1_v2_long_seed43/checkpoints/step_000100/adapter" \
+  --prompts_jsonl /root/project/public_eval/public_test_gen_prompts_128.jsonl \
+  --output_jsonl "/vol/judge/PET/GRPO/grpo_PET_RM1_v2_long_seed43.jsonl" \
+  --max_prompt_tokens 700 \
+  --max_new_tokens 256 \
+  --temperature 0.0 \
+  --top_p 1.0
+
+uv run modal run -d scripts/modal_train.py::build_policy_submission_remote -- \
+  --model_name Qwen/Qwen2.5-1.5B-Instruct \
+  --adapter_path "/vol/runs/PET/grpo_PET_RM1_v2_long_seed44/checkpoints/step_000100/adapter" \
+  --prompts_jsonl /root/project/public_eval/public_test_gen_prompts_128.jsonl \
+  --output_jsonl "/vol/judge/PET/GRPO/grpo_PET_RM1_v2_long_seed44.jsonl" \
+  --max_prompt_tokens 700 \
+  --max_new_tokens 256 \
+  --temperature 0.0 \
+  --top_p 1.0
+
+uv run modal run -d scripts/modal_train.py::build_policy_submission_remote -- \
+  --model_name Qwen/Qwen2.5-1.5B-Instruct \
+  --adapter_path "/vol/runs/PET/grpo_PET_RM2_v2_long_seed42/checkpoints/step_000100/adapter" \
+  --prompts_jsonl /root/project/public_eval/public_test_gen_prompts_128.jsonl \
+  --output_jsonl "/vol/judge/PET/GRPO/grpo_PET_RM2_v2_long_seed42.jsonl" \
+  --max_prompt_tokens 700 \
+  --max_new_tokens 256 \
+  --temperature 0.0 \
+  --top_p 1.0
+
+uv run modal run -d scripts/modal_train.py::build_policy_submission_remote -- \
+  --model_name Qwen/Qwen2.5-1.5B-Instruct \
+  --adapter_path "/vol/runs/PET/grpo_PET_RM2_v2_long_seed43/checkpoints/step_000100/adapter" \
+  --prompts_jsonl /root/project/public_eval/public_test_gen_prompts_128.jsonl \
+  --output_jsonl "/vol/judge/PET/GRPO/grpo_PET_RM2_v2_long_seed43.jsonl" \
+  --max_prompt_tokens 700 \
+  --max_new_tokens 256 \
+  --temperature 0.0 \
+  --top_p 1.0
+
+uv run modal run -d scripts/modal_train.py::build_policy_submission_remote -- \
+  --model_name Qwen/Qwen2.5-1.5B-Instruct \
+  --adapter_path "/vol/runs/PET/grpo_PET_RM2_v2_long_seed44/checkpoints/step_000100/adapter" \
+  --prompts_jsonl /root/project/public_eval/public_test_gen_prompts_128.jsonl \
+  --output_jsonl "/vol/judge/PET/GRPO/grpo_PET_RM2_v2_long_seed44.jsonl" \
+  --max_prompt_tokens 700 \
+  --max_new_tokens 256 \
+  --temperature 0.0 \
+  --top_p 1.0
+
+uv run modal run -d scripts/modal_train.py::build_policy_submission_remote -- \
+  --model_name Qwen/Qwen2.5-1.5B-Instruct \
+  --adapter_path "/vol/runs/PET/grpo_PET_RM3_v2_long_seed42/checkpoints/step_000100/adapter" \
+  --prompts_jsonl /root/project/public_eval/public_test_gen_prompts_128.jsonl \
+  --output_jsonl "/vol/judge/PET/GRPO/grpo_PET_RM3_v2_long_seed42.jsonl" \
+  --max_prompt_tokens 700 \
+  --max_new_tokens 256 \
+  --temperature 0.0 \
+  --top_p 1.0
+
+uv run modal run -d scripts/modal_train.py::build_policy_submission_remote -- \
+  --model_name Qwen/Qwen2.5-1.5B-Instruct \
+  --adapter_path "/vol/runs/PET/grpo_PET_RM3_v2_long_seed43/checkpoints/step_000100/adapter" \
+  --prompts_jsonl /root/project/public_eval/public_test_gen_prompts_128.jsonl \
+  --output_jsonl "/vol/judge/PET/GRPO/grpo_PET_RM3_v2_long_seed43.jsonl" \
+  --max_prompt_tokens 700 \
+  --max_new_tokens 256 \
+  --temperature 0.0 \
+  --top_p 1.0
+
+uv run modal run -d scripts/modal_train.py::build_policy_submission_remote -- \
+  --model_name Qwen/Qwen2.5-1.5B-Instruct \
+  --adapter_path "/vol/runs/PET/grpo_PET_RM3_v2_long_seed44/checkpoints/step_000100/adapter" \
+  --prompts_jsonl /root/project/public_eval/public_test_gen_prompts_128.jsonl \
+  --output_jsonl "/vol/judge/PET/GRPO/grpo_PET_RM3_v2_long_seed44.jsonl" \
+  --max_prompt_tokens 700 \
+  --max_new_tokens 256 \
+  --temperature 0.0 \
+  --top_p 1.0
+```
+
+```bash
+uv run modal run -d scripts/modal_train.py::build_reward_model_submission_remote -- \
+  --model_name Qwen/Qwen2.5-1.5B-Instruct \
+  --adapter_path "/vol/runs/reward_model/rm_finetuned_PET_v3_seed42/checkpoints/step_000075/adapter" \
+  --prefs_jsonl /root/project/public_eval/public_test_prefs_256.jsonl \
+  --output_jsonl "/vol/judge/PET/RM/rm_finetuned_PET_v3_seed42.jsonl" \
+  --max_prompt_tokens 700 \
+  --max_response_tokens 512
+
+uv run modal run -d scripts/modal_train.py::build_reward_model_submission_remote -- \
+  --model_name Qwen/Qwen2.5-1.5B-Instruct \
+  --adapter_path "/vol/runs/reward_model/rm_finetuned_PET_v3_seed43/checkpoints/step_000075/adapter" \
+  --prefs_jsonl /root/project/public_eval/public_test_prefs_256.jsonl \
+  --output_jsonl "/vol/judge/PET/RM/rm_finetuned_PET_v3_seed43.jsonl" \
+  --max_prompt_tokens 700 \
+  --max_response_tokens 512
+
+uv run modal run -d scripts/modal_train.py::build_reward_model_submission_remote -- \
+  --model_name Qwen/Qwen2.5-1.5B-Instruct \
+  --adapter_path "/vol/runs/reward_model/rm_finetuned_PET_v3_seed44/checkpoints/step_000075/adapter" \
+  --prefs_jsonl /root/project/public_eval/public_test_prefs_256.jsonl \
+  --output_jsonl "/vol/judge/PET/RM/rm_finetuned_PET_v3_seed44.jsonl" \
+  --max_prompt_tokens 700 \
+  --max_response_tokens 512
+```
+
+```bash
+mkdir -p policy_generations/PET
+```
+
+Download submission jsonls locally
+```bash
+uv run modal volume get llm-rl-final-project-volume judge/PET/GRPO policy_generations/PET
+uv run modal volume get llm-rl-final-project-volume judge/PET/RM policy_generations/PET
+```
+
