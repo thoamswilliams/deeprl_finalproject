@@ -20,6 +20,8 @@ Here are some example commands. Run them in the `hw5` directory.
   ```
   * You may request a different GPU type, CPU count, and memory size by changing variables in `src/scripts/modal_run.py`
   * Use `modal run --detach` to keep your job running in the background.
+  * Re-running the same command will resume from the latest checkpoint in `exp/` if the job was preempted.
+  * Use different seeds or explicitly set `exp_name` if you want to force a separate fresh run with the same arguments.
 
 
 * To run 4 jobs on a single GPU in parallel on Modal:

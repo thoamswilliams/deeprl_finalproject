@@ -5,6 +5,7 @@ from typing import Dict
 import torch
 import math
 
+from llm_rl_final_proj.models.load import PolicyModel
 from llm_rl_final_proj.rl.base import RLAlgorithm
 from llm_rl_final_proj.rollout.rollout_buffer import RolloutBatch, iter_minibatches
 
@@ -18,7 +19,7 @@ class GRPO(RLAlgorithm):
 
     def update(
         self,
-        model: torch.nn.Module,
+        model: PolicyModel,
         optimizer: torch.optim.Optimizer,
         rollout: RolloutBatch,
         grad_accum_steps: int = 1,

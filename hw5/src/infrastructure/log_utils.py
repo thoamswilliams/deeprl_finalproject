@@ -1,4 +1,5 @@
 import copy
+import csv
 import json
 import os
 import pickle
@@ -23,18 +24,49 @@ class Logger:
         self.file = None
         self.disallowed_types = (wandb.Image, wandb.Video, wandb.Histogram)
         self.rows = []
+        self._load_existing_rows()
+
+    @staticmethod
+    def _parse_scalar(value):
+        if value == "":
+            return value
+
+        try:
+            return int(value)
+        except ValueError:
+            pass
+
+        try:
+            return float(value)
+        except ValueError:
+            return value
+
+    def _load_existing_rows(self):
+        if not os.path.exists(self.path):
+            return
+
+        with open(self.path, newline="") as f:
+            reader = csv.DictReader(f)
+            self.header = reader.fieldnames
+            if self.header is None:
+                return
+
+            self.rows = [
+                {k: self._parse_scalar(v) for k, v in row.items()}
+                for row in reader
+            ]
 
     def log(self, row, step):
         row['step'] = step
+        filtered_row = {k: v for k, v in row.items() if not isinstance(v, self.disallowed_types)}
         if self.file is None:
-            self.file = open(self.path, 'w')
+            mode = 'a' if self.header is not None else 'w'
+            self.file = open(self.path, mode)
             if self.header is None:
-                self.header = [k for k, v in row.items() if not isinstance(v, self.disallowed_types)]
+                self.header = list(filtered_row.keys())
                 self.file.write(','.join(self.header) + '\n')
-            filtered_row = {k: v for k, v in row.items() if not isinstance(v, self.disallowed_types)}
             self.file.write(','.join([str(filtered_row.get(k, '')) for k in self.header]) + '\n')
         else:
-            filtered_row = {k: v for k, v in row.items() if not isinstance(v, self.disallowed_types)}
             self.file.write(','.join([str(filtered_row.get(k, '')) for k in self.header]) + '\n')
         self.file.flush()
 
@@ -98,6 +130,8 @@ def setup_wandb(
     project='project',
     group=None,
     name=None,
+    run_id=None,
+    resume=None,
     mode='online',
     config=None,
 ):
@@ -113,6 +147,8 @@ def setup_wandb(
         group=group,
         dir=wandb_output_dir,
         name=name,
+        id=run_id,
+        resume=resume,
         settings=wandb.Settings(
             start_method='thread',
             _disable_stats=False,
