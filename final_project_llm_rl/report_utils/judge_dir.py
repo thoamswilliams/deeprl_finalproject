@@ -9,6 +9,7 @@ import argparse
 import json
 import os
 from pathlib import Path
+import time
 
 import concurrent.futures
 
@@ -35,6 +36,12 @@ def parse_args() -> argparse.Namespace:
         "input_path",
         type=Path,
         help="Path to directory containing many jsonl outputs, win rate is reported for these model",
+    )
+    ap.add_argument(
+        "--throttle_time",
+        type=int,
+        default=2,
+        help="Time to wait between job submission to API",
     )
     return ap.parse_args()
 
@@ -82,7 +89,12 @@ def main() -> None:
     results: dict[str, dict] = {}
     print(f"Grading {len(model_gens)} models against ref_model={args.ref_path.stem} ...")
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
-        future_to_name = {pool.submit(score_model, item): item[0] for item in model_gens.items()}
+        future_to_name = {}
+        # throttle the submission of jobs
+        for item in model_gens.items():
+            future_to_name[pool.submit(score_model, item)] = item[0]
+            time.sleep(args.throttle_time)
+
         for fut in concurrent.futures.as_completed(future_to_name):
             name = future_to_name[fut]
             _, metrics = fut.result()
