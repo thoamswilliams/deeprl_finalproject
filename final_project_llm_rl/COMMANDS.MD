@@ -1,6 +1,28 @@
 # COMMANDS
 Log all commands used here and what they were used for.
-
+## Part 1 Comamnds:
+### 9.1 Reward Model
+Intitial Reward Model Training (Before Assignment Updates)
+```bash
+uv run modal run -d scripts/modal_train.py::reward_model_train_remote -- \
+--model_name Qwen/Qwen2.5-1.5B-Instruct \
+--dataset_name /vol/synthetic_datasets/wildchat_min4_judged_5k_v1 \
+--train_split train_prefs \
+--eval_split test_prefs \
+--output_dir /vol/runs/wildchat_min4_judged_5k_reward_model_v1
+--per_device_train_batch_size 8 \
+--per_device_eval_batch_size 8 \
+--grad_accum_steps 4 \
+--lr 3e-5 \
+--num_train_epochs 3
+--max_prompt_tokens 700 \
+--max_response_tokens 512 \
+--eval_interval 25 \
+--save_interval 50 \
+--wandb_enabled \
+--wandb_project llm-rl-final-project \
+--wandb_name wildchat_min4_judged_5k_reward_model_v1  \
+```
 ## Finetuning PET RM
 ### Baseline Runs, To Establish Our Method Consistently Works
 #### RM1 finetuning, Seed 42:
@@ -860,4 +882,132 @@ uv run modal run -d scripts/modal_train.py::rm_grpo_train_remote -- \
 --wandb_enabled \
 --wandb_project llm-rl-final-project \
 --wandb_name grpo_PET_2_rejection_v2_long_seed44
+```
+
+#### Ablation 3, Train BT-RM for one more epoch.
+RM Retraining, Same hyperparams as base RM, but one extra epoch
+```bash
+uv run modal run -d scripts/modal_train.py::reward_model_train_remote -- \
+--model_name Qwen/Qwen2.5-1.5B-Instruct \
+--dataset_name /vol/synthetic_datasets/wildchat_min4_judged_5k_v1 \
+--train_split train_prefs \
+--eval_split test_prefs \
+--output_dir /vol/runs/reward_model/wildchat_min4_judged_5k_reward_model_v1_LONG \
+--per_device_train_batch_size 8 \
+--per_device_eval_batch_size 8 \
+--grad_accum_steps 4 \
+--lr 3e-5 \
+--num_train_epochs 4 \
+--max_prompt_tokens 700 \
+--max_response_tokens 512 \
+--eval_interval 25 \
+--save_interval 50 \
+--wandb_enabled \
+--wandb_project llm-rl-final-project \
+--wandb_name wildchat_min4_judged_5k_reward_model_v1_LONG  \
+```
+
+GRPO seed 42, w/ long RM:
+```bash
+uv run modal run -d scripts/modal_train.py::rm_grpo_train_remote -- \
+--algo grpo \
+--model_name Qwen/Qwen2.5-1.5B-Instruct \
+--dataset_name /vol/synthetic_datasets/wildchat_min4_judged_5k_v1 \
+--train_split train_gen \
+--eval_split test_gen \
+--reward_model_name Qwen/Qwen2.5-1.5B-Instruct \
+--reward_adapter_path /vol/runs/reward_model/wildchat_min4_judged_5k_reward_model_v1_LONG/checkpoints/<step>/adapter \
+--output_dir /vol/runs/BASELINE/grpo_long_RM_v2_long_seed42 \
+--seed 42 \
+--steps 100 \
+--batch_size 16 \
+--group_size 4 \
+--min_new_tokens 32 \
+--max_new_tokens 256 \
+--temperature 0.8 \
+--top_p 0.95 \
+--lr 1e-5 \
+--grad_accum_steps 2 \
+--ppo_epochs 2 \
+--minibatch_size 8 \
+--clip_eps 0.2 \
+--kl_coef 0.01 \
+--max_prompt_tokens 700 \
+--max_response_tokens 256 \
+--eval_limit 32 \
+--eval_interval 25 \
+--save_interval 25 \
+--wandb_enabled \
+--wandb_project llm-rl-final-project \
+--wandb_name grpo_long_RM_v2_long_seed42
+```
+
+GRPO seed 43, w/ long RM:
+```bash
+uv run modal run -d scripts/modal_train.py::rm_grpo_train_remote -- \
+--algo grpo \
+--model_name Qwen/Qwen2.5-1.5B-Instruct \
+--dataset_name /vol/synthetic_datasets/wildchat_min4_judged_5k_v1 \
+--train_split train_gen \
+--eval_split test_gen \
+--reward_model_name Qwen/Qwen2.5-1.5B-Instruct \
+--reward_adapter_path /vol/runs/reward_model/wildchat_min4_judged_5k_reward_model_v1_LONG/checkpoints/<step>/adapter \
+--output_dir /vol/runs/BASELINE/grpo_long_RM_v2_long_seed43 \
+--seed 43 \
+--steps 100 \
+--batch_size 16 \
+--group_size 4 \
+--min_new_tokens 32 \
+--max_new_tokens 256 \
+--temperature 0.8 \
+--top_p 0.95 \
+--lr 1e-5 \
+--grad_accum_steps 2 \
+--ppo_epochs 2 \
+--minibatch_size 8 \
+--clip_eps 0.2 \
+--kl_coef 0.01 \
+--max_prompt_tokens 700 \
+--max_response_tokens 256 \
+--eval_limit 32 \
+--eval_interval 25 \
+--save_interval 25 \
+--wandb_enabled \
+--wandb_project llm-rl-final-project \
+--wandb_name grpo_long_RM_v2_long_seed43
+```
+
+GRPO seed 44, w/ long RM:
+```bash
+uv run modal run -d scripts/modal_train.py::rm_grpo_train_remote -- \
+--algo grpo \
+--model_name Qwen/Qwen2.5-1.5B-Instruct \
+--dataset_name /vol/synthetic_datasets/wildchat_min4_judged_5k_v1 \
+--train_split train_gen \
+--eval_split test_gen \
+--reward_model_name Qwen/Qwen2.5-1.5B-Instruct \
+--reward_adapter_path /vol/runs/reward_model/wildchat_min4_judged_5k_reward_model_v1_LONG/checkpoints/<step>/adapter \
+--output_dir /vol/runs/BASELINE/grpo_long_RM_v2_long_seed44 \
+--seed 44 \
+--steps 100 \
+--batch_size 16 \
+--group_size 4 \
+--min_new_tokens 32 \
+--max_new_tokens 256 \
+--temperature 0.8 \
+--top_p 0.95 \
+--lr 1e-5 \
+--grad_accum_steps 2 \
+--ppo_epochs 2 \
+--minibatch_size 8 \
+--clip_eps 0.2 \
+--kl_coef 0.01 \
+--max_prompt_tokens 700 \
+--max_response_tokens 256 \
+--eval_limit 32 \
+--eval_interval 25 \
+--save_interval 25 \
+--wandb_enabled \
+--wandb_project llm-rl-final-project \
+--wandb_name grpo_long_RM_v2_long_seed44
 ```
