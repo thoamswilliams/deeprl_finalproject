@@ -1,6 +1,8 @@
 import multiprocessing as mp
 import shlex
 
+import modal
+
 from scripts.run import setup_arguments, main
 
 
@@ -10,8 +12,9 @@ def _worker(job_str: str):
     del job_args_list[0]  # Delete the dummy "JOB" prefix
     print(job_args_list)
     job_args = setup_arguments(args=job_args_list)
+    volume = modal.Volume.from_name("hw5-offline-rl-volume", create_if_missing=True)
 
-    main(job_args)
+    main(job_args, checkpoint_callback=volume.commit)
 
 
 def main_njobs(job_specs, njobs: int, start_method: str = "spawn"):

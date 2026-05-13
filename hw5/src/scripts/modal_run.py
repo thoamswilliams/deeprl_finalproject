@@ -66,14 +66,24 @@ env = {
 }
 
 
-@app.function(volumes={VOLUME_PATH: volume}, timeout=60 * 60 * 12, env=env, image=image, gpu=DEFAULT_GPU, cpu=DEFAULT_CPU, memory=DEFAULT_MEMORY)
+@app.function(
+    volumes={VOLUME_PATH: volume},
+    timeout=60 * 60 * 12,
+    retries=modal.Retries(initial_delay=0.0, max_retries=10),
+    env=env,
+    image=image,
+    gpu=DEFAULT_GPU,
+    cpu=DEFAULT_CPU,
+    memory=DEFAULT_MEMORY,
+)
 def hw5_modal_remote(*args: str) -> None:
     args = setup_arguments(args)
+    volume.reload()
     if args.njobs is not None and len(args.job_specs) > 0:
         # Run n jobs in parallel
         from scripts.run_njobs import main_njobs
         main_njobs(job_specs=args.job_specs, njobs=args.njobs)
     else:
         # Run a single job
-        main(args)
+        main(args, checkpoint_callback=volume.commit)
     volume.commit()
