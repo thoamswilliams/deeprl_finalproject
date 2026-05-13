@@ -37,6 +37,7 @@ class HFSampler(Sampler):
         sampling: SamplingConfig,
         max_prompt_tokens: Optional[int] = None,
         output_to_cpu: bool = False,
+        compute_logprobs: bool = True
     ) -> RolloutOutput:
         assert len(prompt_messages) == len(task_names) == len(task_metas)
         B = len(prompt_messages)
@@ -97,23 +98,27 @@ class HFSampler(Sampler):
                     row = row[:n]
                 completion_texts.append(self.tokenizer.decode(row, skip_special_tokens=True))
 
-            old_logp = compute_per_token_logprobs(
-                policy_model,
-                sequences,
-                full_attention,
-                enable_grad=False,
-            )
-
-            # Reference logprobs are computed from the base model by disabling adapters.
-            if not hasattr(policy_model, "disable_adapter"):
-                raise RuntimeError("Policy model must support disable_adapter() for LoRA reference logprobs.")
-            with policy_model.disable_adapter():
-                ref_logp = compute_per_token_logprobs(
+            # This is used for PET, as we need to sample w/o reference log probs
+            if compute_logprobs:
+                old_logp = compute_per_token_logprobs(
                     policy_model,
                     sequences,
                     full_attention,
                     enable_grad=False,
                 )
+                # Reference logprobs are computed from the base model by disabling adapters.
+                if not hasattr(policy_model, "disable_adapter"):
+                    raise RuntimeError("Policy model must support disable_adapter() for LoRA reference logprobs.")
+                with policy_model.disable_adapter():
+                    ref_logp = compute_per_token_logprobs(
+                        policy_model,
+                        sequences,
+                        full_attention,
+                        enable_grad=False,
+                    )
+            else:
+                old_logp = None
+                ref_logp = None
 
             completion_mask = build_completion_mask(
                 input_ids=sequences,
@@ -143,8 +148,10 @@ class HFSampler(Sampler):
             sequences = sequences.cpu()
             full_attention = full_attention.cpu()
             completion_mask = completion_mask.cpu()
-            old_logp = old_logp.cpu()
-            ref_logp = ref_logp.cpu()
+            if old_logp is not None:
+                old_logp = old_logp.cpu()
+            if ref_logp is not None:
+                ref_logp = ref_logp.cpu()
 
         return RolloutOutput(
             prompt_messages=prompt_messages_rep,

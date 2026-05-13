@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import torch
 
@@ -16,8 +16,8 @@ class RolloutOutput:
     input_ids: torch.Tensor       # [N, L]
     attention_mask: torch.Tensor  # [N, L]
     completion_mask: torch.Tensor # [N, L-1] float {0,1}
-    old_logprobs: torch.Tensor    # [N, L-1]
-    ref_logprobs: torch.Tensor    # [N, L-1]
+    old_logprobs: Optional[torch.Tensor]    # [N, L-1]
+    ref_logprobs: Optional[torch.Tensor]    # [N, L-1]
 
     # Metadata
     prompt_input_len: int         # padded prompt length used for generate
