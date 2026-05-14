@@ -1011,3 +1011,5 @@ uv run modal run -d scripts/modal_train.py::rm_grpo_train_remote -- \
 --wandb_project llm-rl-final-project \
 --wandb_name grpo_long_RM_v2_long_seed44
 ```
+
+We can use a similar process to our baseline runs to gererate and score completions against the judge for our ablations.
